@@ -107,6 +107,7 @@ jobs:
             docker run -d \
               --name backend-post -p 8080:8080 \
               --network myapp-net \
+              --network-alias backend-post \
               -e SPRING_DATASOURCE_URL=jdbc:mysql://my-mysql-db.cxpgp9wsr6on.us-east-1.rds.amazonaws.com:3306/jake_dbschema \
               -e SPRING_DATASOURCE_USERNAME=admin \
               -e SPRING_DATASOURCE_PASSWORD=mypassword123 \
@@ -116,8 +117,9 @@ jobs:
             docker logs backend-post || echo "No logs for backend-post"
 
             docker run -d \
-              --name backend-signup -p 8081:8081 \
+              --name backend-signup -p 8081:8080 \
               --network myapp-net \
+              --network-alias backend-signup \
               -e SPRING_DATASOURCE_URL=jdbc:mysql://my-mysql-db.cxpgp9wsr6on.us-east-1.rds.amazonaws.com:3306/jake_dbschema \
               -e SPRING_DATASOURCE_USERNAME=admin \
               -e SPRING_DATASOURCE_PASSWORD=mypassword123 \
