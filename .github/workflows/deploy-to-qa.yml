@@ -1,0 +1,179 @@
+name: Nightly Build and QA Test
+
+on:
+  schedule:
+    - cron: "0 0 * * *"
+  workflow_dispatch:
+
+jobs:
+  test-on-temp-ec2:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Infra Repo
+        uses: actions/checkout@v4
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Launch Temp EC2
+        id: launch_ec2
+        run: |
+          INSTANCE_ID=$(aws ec2 run-instances \
+            --image-id ami-0c2b8ca1dad447f8a \
+            --count 1 \
+            --instance-type t2.micro \
+            --key-name devOpsFinal \
+            --security-group-ids sg-0dec66a9ba8d66a75 \
+            --subnet-id subnet-07e2cadc5b35439a8 \
+            --query 'Instances[0].InstanceId' \
+            --output text)
+          echo "INSTANCE_ID=$INSTANCE_ID" >> $GITHUB_ENV
+
+      - name: Wait for EC2 to be in "running" state
+        run: |
+          STATUS="pending"
+          while [ "$STATUS" != "running" ]; do
+            sleep 10
+            STATUS=$(aws ec2 describe-instances \
+              --instance-ids $INSTANCE_ID \
+              --query 'Reservations[0].Instances[0].State.Name' --output text)
+            echo "Current EC2 Status: $STATUS"
+          done
+          echo "EC2 is now running!"    
+
+      - name: Get EC2 Public IP
+        run: |
+          PUBLIC_IP=$(aws ec2 describe-instances \
+            --instance-ids $INSTANCE_ID \
+            --query 'Reservations[0].Instances[0].PublicIpAddress' \
+            --output text)
+          echo "PUBLIC_IP=$PUBLIC_IP" >> $GITHUB_ENV
+
+      - name: Setup SSH Key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.EC2_SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa   
+
+      - name: Wait for SSH Port to be Open
+        run: |
+          echo "Waiting for SSH Port 22 to be available..."
+          until nc -zv ${{ env.PUBLIC_IP }} 22; do
+            echo "SSH is not available yet. Retrying in 5 seconds..."
+            sleep 5
+          done
+          echo "SSH is now available!"
+
+      - name: Add EC2 Host Key to Known Hosts
+        run: |
+          ssh-keyscan -H ${{ env.PUBLIC_IP }} >> ~/.ssh/known_hosts    
+
+      - name: SSH into EC2 and Run Setup
+        run: |
+          ssh -o StrictHostKeyChecking=no ec2-user@${{ env.PUBLIC_IP }} << 'EOF'
+            export AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}
+            export AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}
+            export AWS_SESSION_TOKEN=${{ secrets.AWS_SESSION_TOKEN }}
+            sudo yum update -y
+            sudo yum install -y docker
+            sudo systemctl enable docker
+            sudo systemctl start docker
+            sudo usermod -aG docker ec2-user
+            newgrp docker
+            sudo chmod 666 /var/run/docker.sock
+
+            echo "Docker login and image Pull..."
+            aws ecr get-login-password --region us-east-1 | \
+              docker login --username AWS --password-stdin 390638349876.dkr.ecr.us-east-1.amazonaws.com
+
+            docker network create myapp-net || true
+
+            docker pull 390638349876.dkr.ecr.us-east-1.amazonaws.com/devops/front:latest
+            docker pull 390638349876.dkr.ecr.us-east-1.amazonaws.com/devops/post:latest
+            docker pull 390638349876.dkr.ecr.us-east-1.amazonaws.com/devops/signup:latest
+
+            echo "run docker container..."
+
+            docker run -d \
+              --name backend-post -p 8080:8080 \
+              --network myapp-net \
+              --network-alias backend-post \
+              -e SPRING_DATASOURCE_URL=jdbc:mysql://my-mysql-db.cxpgp9wsr6on.us-east-1.rds.amazonaws.com:3306/jake_dbschema \
+              -e SPRING_DATASOURCE_USERNAME=admin \
+              -e SPRING_DATASOURCE_PASSWORD=mypassword123 \
+              390638349876.dkr.ecr.us-east-1.amazonaws.com/devops/post:latest
+
+            echo "📦 Logs from backend-post:"
+            docker logs backend-post || echo "No logs for backend-post"
+
+            docker run -d \
+              --name backend-signup -p 8081:8081 \
+              --network myapp-net \
+              --network-alias backend-signup \
+              -e SERVER_PORT=8081 \
+              -e SPRING_DATASOURCE_URL=jdbc:mysql://my-mysql-db.cxpgp9wsr6on.us-east-1.rds.amazonaws.com:3306/jake_dbschema \
+              -e SPRING_DATASOURCE_USERNAME=admin \
+              -e SPRING_DATASOURCE_PASSWORD=mypassword123 \
+              390638349876.dkr.ecr.us-east-1.amazonaws.com/devops/signup:latest
+          
+            echo "📦 Logs from backend-signup:"
+            docker logs backend-signup || echo "No logs for backend-signup"
+          
+          
+            sleep 10
+            docker run -d --name frontend -p 80:80 --network myapp-net \
+              390638349876.dkr.ecr.us-east-1.amazonaws.com/devops/front:latest
+            sleep 10
+            echo "📦 Logs from frontend:"
+            docker logs frontend || echo "No logs for frontend"
+          
+          
+          
+            echo "wait before service runs..."
+            for i in {1..5}; do curl -f http://${{ env.PUBLIC_IP }}:8080/api/health && break || echo "backend-post not ready"; sleep 10; done
+            echo "📦 Logs from backend-post:"
+            docker logs backend-post || echo "No logs for backend-post"
+          
+            for i in {1..5}; do curl -f http://${{ env.PUBLIC_IP }}:8081/api2/health && break || echo "backend-signup not ready"; sleep 10; done
+            echo "📦 Logs from backend-signup:"
+            docker logs backend-signup || echo "No logs for backend-signup"
+          
+            for i in {1..5}; do curl -f http://${{ env.PUBLIC_IP }}:80 && break || echo "frontend not ready"; sleep 10; done
+            echo "📦 Logs from frontend:"
+            docker logs frontend || echo "No logs for frontend"
+          
+          
+            echo "✅ Smoke Test success"
+          EOF
+
+      - name: Tag and Push Release Candidate (RC) Images
+        if: success()
+        run: |
+          # Docker login
+          aws ecr get-login-password --region us-east-1 | \
+            docker login --username AWS --password-stdin 390638349876.dkr.ecr.us-east-1.amazonaws.com
+
+          # Frontend
+          docker pull 390638349876.dkr.ecr.us-east-1.amazonaws.com/devops/front:latest
+          docker tag 390638349876.dkr.ecr.us-east-1.amazonaws.com/devops/front:latest \
+                     390638349876.dkr.ecr.us-east-1.amazonaws.com/devops/front:rc
+          docker push 390638349876.dkr.ecr.us-east-1.amazonaws.com/devops/front:rc
+
+          # Post Backend
+          docker pull 390638349876.dkr.ecr.us-east-1.amazonaws.com/devops/post:latest
+          docker tag 390638349876.dkr.ecr.us-east-1.amazonaws.com/devops/post:latest \
+                     390638349876.dkr.ecr.us-east-1.amazonaws.com/devops/post:rc
+          docker push 390638349876.dkr.ecr.us-east-1.amazonaws.com/devops/post:rc
+
+          # Signup Backend
+          docker pull 390638349876.dkr.ecr.us-east-1.amazonaws.com/devops/signup:latest
+          docker tag 390638349876.dkr.ecr.us-east-1.amazonaws.com/devops/signup:latest \
+                     390638349876.dkr.ecr.us-east-1.amazonaws.com/devops/signup:rc
+          docker push 390638349876.dkr.ecr.us-east-1.amazonaws.com/devops/signup:rc    
+
+

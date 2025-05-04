@@ -149,34 +149,16 @@ jobs:
             
 
             echo "✅ Smoke Test success"
-          EOF
-
-      - name: Tag and Push Release Candidate (RC) Images
-        if: success()
-        run: |
-          # Docker login
-          aws ecr get-login-password --region us-east-1 | \
-            docker login --username AWS --password-stdin 390638349876.dkr.ecr.us-east-1.amazonaws.com
-
-          # Frontend
-          docker pull 390638349876.dkr.ecr.us-east-1.amazonaws.com/devops/front:latest
-          docker tag 390638349876.dkr.ecr.us-east-1.amazonaws.com/devops/front:latest \
-                     390638349876.dkr.ecr.us-east-1.amazonaws.com/devops/front:rc
-          docker push 390638349876.dkr.ecr.us-east-1.amazonaws.com/devops/front:rc
-
-          # Post Backend
-          docker pull 390638349876.dkr.ecr.us-east-1.amazonaws.com/devops/post:latest
-          docker tag 390638349876.dkr.ecr.us-east-1.amazonaws.com/devops/post:latest \
-                     390638349876.dkr.ecr.us-east-1.amazonaws.com/devops/post:rc
-          docker push 390638349876.dkr.ecr.us-east-1.amazonaws.com/devops/post:rc
-
-          # Signup Backend
-          docker pull 390638349876.dkr.ecr.us-east-1.amazonaws.com/devops/signup:latest
-          docker tag 390638349876.dkr.ecr.us-east-1.amazonaws.com/devops/signup:latest \
-                     390638349876.dkr.ecr.us-east-1.amazonaws.com/devops/signup:rc
-          docker push 390638349876.dkr.ecr.us-east-1.amazonaws.com/devops/signup:rc    
+          EOF  
 
       - name: Terminate EC2
         if: always()
         run: |
           aws ec2 terminate-instances --instance-ids $INSTANCE_ID || true
+
+      - name: Trigger Deploy to QA Workflow
+        if: success()
+        uses: benc-uk/workflow-dispatch@v1
+        with:
+          workflow: deploy-to-qa.yml
+          token: ${{ secrets.GITHUB_TOKEN }}
