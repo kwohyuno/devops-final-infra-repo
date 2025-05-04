@@ -146,9 +146,9 @@ jobs:
             for i in {1..5}; do curl -f http://${{ env.PUBLIC_IP }}:80 && break || echo "frontend not ready"; sleep 10; done
             echo "📦 Logs from frontend:"
             docker logs frontend || echo "No logs for frontend"
-            
 
             echo "✅ Smoke Test success"
+          
           EOF  
 
       - name: Terminate EC2
@@ -160,5 +160,5 @@ jobs:
         if: success()
         uses: benc-uk/workflow-dispatch@v1
         with:
-          workflow: deploy-to-qa.yml
+          workflow: Deploy to QA
           token: ${{ secrets.GITHUB_TOKEN }}
