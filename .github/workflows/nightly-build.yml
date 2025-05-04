@@ -60,6 +60,18 @@ jobs:
           echo "${{ secrets.EC2_SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
 
+      - name: Wait for EC2 to be in "running" state
+        run: |
+          STATUS="pending"
+          while [ "$STATUS" != "running" ]; do
+            sleep 10
+            STATUS=$(aws ec2 describe-instances \
+              --instance-ids $INSTANCE_ID \
+              --query 'Reservations[0].Instances[0].State.Name' --output text)
+            echo "Current EC2 Status: $STATUS"
+          done
+          echo "EC2 is now running!"      
+
       - name: Wait for SSH Port to be Open
         run: |
           echo "Waiting for SSH Port 22 to be available..."
