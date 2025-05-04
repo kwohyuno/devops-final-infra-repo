@@ -49,48 +49,79 @@ jobs:
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H $PUBLIC_IP >> ~/.ssh/known_hosts
 
-      - name: SSH into EC2 and Run Docker Test
-        env:
-          ECR_FE: 390638349876.dkr.ecr.us-east-1.amazonaws.com/devops/frontend
-          ECR_SIGNUP: 390638349876.dkr.ecr.us-east-1.amazonaws.com/devops/signup
-          ECR_POST: 390638349876.dkr.ecr.us-east-1.amazonaws.com/devops/post
+      - name: SSH into EC2 and Run Setup
         run: |
-          ssh ec2-user@$PUBLIC_IP << 'EOF'
-            sudo yum install -y docker
+          ssh -o StrictHostKeyChecking=no ec2-user@${{ env.PUBLIC_IP }} << 'EOF'
+            sudo yum update -y
+            sudo yum install -y git docker
+            sudo systemctl enable docker
             sudo systemctl start docker
+            sudo groupadd docker || true
             sudo usermod -aG docker ec2-user
-            newgrp docker
-            docker --version
-          
-            aws ecr get-login-password --region us-east-1 | docker login -u AWS --password-stdin $ECR_FE
-            aws ecr get-login-password --region us-east-1 | docker login -u AWS --password-stdin $ECR_SIGNUP
-            aws ecr get-login-password --region us-east-1 | docker login -u AWS --password-stdin $ECR_POST
-          
-            docker network create myapp-net || true
-          
-            docker pull $ECR_FE:latest
-            docker pull $ECR_SIGNUP:latest
-            docker pull $ECR_POST:latest
-          
-            docker run -d --name backend-signup -p 8081:8080 \
-              --network myapp-net \
-              $ECR_SIGNUP:latest
-          
-            docker run -d --name backend-post -p 8080:8080 \
-              --network myapp-net \
-              $ECR_POST:latest
-          
-            docker run -d --name frontend -p 80:80 \
-              --network myapp-net \
-              $ECR_FE:latest
-          
-            sleep 20
-            curl http://localhost:80 || exit 1
-            curl http://localhost:8081/api2/members || exit 1
-            curl http://localhost:8080/api/health || exit 1
-          
-            echo "✅ Smoke Test Passed"
+            sudo chmod 666 /var/run/docker.sock
+
+            mkdir -p ~/.docker/cli-plugins/
+            sudo curl -SL "https://github.com/docker/compose/releases/latest/download/docker-compose-linux-x86_64" -o ~/.docker/cli-plugins/docker-compose
+            sudo chmod +x ~/.docker/cli-plugins/docker-compose
+
+            docker compose version
+
+            echo "Cloning app repositories..."
+            mkdir -p /home/ec2-user/app && cd /home/ec2-user/app
+            git clone https://github.com/kwohyuno/devops-final-app-repo-frontend.git frontend
+            git clone https://github.com/kwohyuno/devops-final-app-repo-backend-post-service.git backend-post
+            git clone https://github.com/kwohyuno/devops-final-app-repo-backend-signup-service.git backend-signup
+
+            echo "Creating docker-compose.yml..."
+            cat <<EOC > docker-compose.yml
+            version: '3'
+            services:
+              frontend:
+                image: $AWS_ECR_URL/frontend:latest
+                ports:
+                  - "80:80"
+                networks:
+                  - myapp-net
+              backend-post:
+                image: $AWS_ECR_URL/backend-post:latest
+                ports:
+                  - "8080:8080"
+                networks:
+                  - myapp-net
+              backend-signup:
+                image: $AWS_ECR_URL/backend-signup:latest
+                ports:
+                  - "8081:8080"
+                networks:
+                  - myapp-net
+            networks:
+              myapp-net:
+            EOC
+
+            echo "Starting Docker Compose..."
+            docker compose up -d
+
+            echo "Waiting for services to be ready..."
+            for i in {1..5}; do
+              curl -f http://localhost:8080/api/board && break || echo "backend-post not ready"; sleep 10
+            done
+            for i in {1..5}; do
+              curl -f http://localhost:8081/api2/members && break || echo "backend-signup not ready"; sleep 10
+            done
+            for i in {1..5}; do
+              curl -f http://localhost || break || echo "frontend not ready"; sleep 10
+            done
+
+            echo "✅ All services responded successfully"
           EOF
+
+      - name: Run Smoke Test on EC2 (External)
+        run: |
+          echo "Running Smoke Test..."
+          curl -f http://${{ env.PUBLIC_IP }}:8080/api/board || { echo "❌ backend-post Failed!"; exit 1; }
+          curl -f http://${{ env.PUBLIC_IP }}:8081/api2/members || { echo "❌ backend-signup Failed!"; exit 1; }
+          curl -f http://${{ env.PUBLIC_IP }} || { echo "❌ frontend Failed!"; exit 1; }
+          echo "✅ Smoke Test Passed!"
 
       - name: Terminate EC2
         if: always()
