@@ -76,77 +76,77 @@ jobs:
       - name: SSH into EC2 and Run Setup
         run: |
           ssh -o StrictHostKeyChecking=no ec2-user@${{ env.PUBLIC_IP }} << 'EOF'
-            export AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}
-            export AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}
-            export AWS_SESSION_TOKEN=${{ secrets.AWS_SESSION_TOKEN }}
-            sudo yum update -y
-            sudo yum install -y docker
-            sudo systemctl enable docker
-            sudo systemctl start docker
-            sudo usermod -aG docker ec2-user
-            newgrp docker
-            sudo chmod 666 /var/run/docker.sock
+          export AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}
+          export AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          export AWS_SESSION_TOKEN=${{ secrets.AWS_SESSION_TOKEN }}
+          sudo yum update -y
+          sudo yum install -y docker
+          sudo systemctl enable docker
+          sudo systemctl start docker
+          sudo usermod -aG docker ec2-user
+          newgrp docker
+          sudo chmod 666 /var/run/docker.sock
 
-            echo "Docker login and image Pull..."
-            aws ecr get-login-password --region us-east-1 | \
-              docker login --username AWS --password-stdin 390638349876.dkr.ecr.us-east-1.amazonaws.com
+          echo "Docker login and image Pull..."
+          aws ecr get-login-password --region us-east-1 | \
+          docker login --username AWS --password-stdin 390638349876.dkr.ecr.us-east-1.amazonaws.com
 
-            docker network create myapp-net || true
+          docker network create myapp-net || true
 
-            docker pull 390638349876.dkr.ecr.us-east-1.amazonaws.com/devops/front:latest
-            docker pull 390638349876.dkr.ecr.us-east-1.amazonaws.com/devops/post:latest
-            docker pull 390638349876.dkr.ecr.us-east-1.amazonaws.com/devops/signup:latest
+          docker pull 390638349876.dkr.ecr.us-east-1.amazonaws.com/devops/front:latest
+          docker pull 390638349876.dkr.ecr.us-east-1.amazonaws.com/devops/post:latest
+          docker pull 390638349876.dkr.ecr.us-east-1.amazonaws.com/devops/signup:latest
 
-            echo "run docker container..."
+          echo "run docker container..."
 
-            docker run -d \
-              --name backend-post -p 8080:8080 \
-              --network myapp-net \
-              --network-alias backend-post \
-              -e SPRING_DATASOURCE_URL=jdbc:mysql://my-mysql-db.cxpgp9wsr6on.us-east-1.rds.amazonaws.com:3306/jake_dbschema \
-              -e SPRING_DATASOURCE_USERNAME=admin \
-              -e SPRING_DATASOURCE_PASSWORD=mypassword123 \
-              390638349876.dkr.ecr.us-east-1.amazonaws.com/devops/post:latest
+          docker run -d \
+            --name backend-post -p 8080:8080 \
+            --network myapp-net \
+            --network-alias backend-post \
+            -e SPRING_DATASOURCE_URL=jdbc:mysql://my-mysql-db.cxpgp9wsr6on.us-east-1.rds.amazonaws.com:3306/jake_dbschema \
+            -e SPRING_DATASOURCE_USERNAME=admin \
+            -e SPRING_DATASOURCE_PASSWORD=mypassword123 \
+            390638349876.dkr.ecr.us-east-1.amazonaws.com/devops/post:latest
 
-            echo "📦 Logs from backend-post:"
-            docker logs backend-post || echo "No logs for backend-post"
+          echo "📦 Logs from backend-post:"
+          docker logs backend-post || echo "No logs for backend-post"
 
-            docker run -d \
-              --name backend-signup -p 8081:8081 \
-              --network myapp-net \
-              --network-alias backend-signup \
-              -e SERVER_PORT=8081 \
-              -e SPRING_DATASOURCE_URL=jdbc:mysql://my-mysql-db.cxpgp9wsr6on.us-east-1.rds.amazonaws.com:3306/jake_dbschema \
-              -e SPRING_DATASOURCE_USERNAME=admin \
-              -e SPRING_DATASOURCE_PASSWORD=mypassword123 \
-              390638349876.dkr.ecr.us-east-1.amazonaws.com/devops/signup:latest
+          docker run -d \
+            --name backend-signup -p 8081:8081 \
+            --network myapp-net \
+            --network-alias backend-signup \
+            -e SERVER_PORT=8081 \
+            -e SPRING_DATASOURCE_URL=jdbc:mysql://my-mysql-db.cxpgp9wsr6on.us-east-1.rds.amazonaws.com:3306/jake_dbschema \
+            -e SPRING_DATASOURCE_USERNAME=admin \
+            -e SPRING_DATASOURCE_PASSWORD=mypassword123 \
+            390638349876.dkr.ecr.us-east-1.amazonaws.com/devops/signup:latest
           
-            echo "📦 Logs from backend-signup:"
-            docker logs backend-signup || echo "No logs for backend-signup"
+          echo "📦 Logs from backend-signup:"
+          docker logs backend-signup || echo "No logs for backend-signup"
           
           
-            sleep 10
-            docker run -d --name frontend -p 80:80 --network myapp-net \
-              390638349876.dkr.ecr.us-east-1.amazonaws.com/devops/front:latest
-            sleep 10
-            echo "📦 Logs from frontend:"
-            docker logs frontend || echo "No logs for frontend"
+          sleep 10
+          docker run -d --name frontend -p 80:80 --network myapp-net \
+            390638349876.dkr.ecr.us-east-1.amazonaws.com/devops/front:latest
+          sleep 10
+          echo "📦 Logs from frontend:"
+          docker logs frontend || echo "No logs for frontend"
           
-            echo "wait before service runs..."
-            for i in {1..5}; do curl -f http://${{ env.PUBLIC_IP }}:8080/api/health && break || echo "backend-post not ready"; sleep 10; done
-            echo "📦 Logs from backend-post:"
-            docker logs backend-post || echo "No logs for backend-post"
+          echo "wait before service runs..."
+          for i in {1..5}; do curl -f http://${{ env.PUBLIC_IP }}:8080/api/health && break || echo "backend-post not ready"; sleep 10; done
+          echo "📦 Logs from backend-post:"
+          docker logs backend-post || echo "No logs for backend-post"
           
-            for i in {1..5}; do curl -f http://${{ env.PUBLIC_IP }}:8081/api2/health && break || echo "backend-signup not ready"; sleep 10; done
-            echo "📦 Logs from backend-signup:"
-            docker logs backend-signup || echo "No logs for backend-signup"
+          for i in {1..5}; do curl -f http://${{ env.PUBLIC_IP }}:8081/api2/health && break || echo "backend-signup not ready"; sleep 10; done
+          echo "📦 Logs from backend-signup:"
+          docker logs backend-signup || echo "No logs for backend-signup"
           
-            for i in {1..5}; do curl -f http://${{ env.PUBLIC_IP }}:80 && break || echo "frontend not ready"; sleep 10; done
-            echo "📦 Logs from frontend:"
-            docker logs frontend || echo "No logs for frontend"
+          for i in {1..5}; do curl -f http://${{ env.PUBLIC_IP }}:80 && break || echo "frontend not ready"; sleep 10; done
+          echo "📦 Logs from frontend:"
+          docker logs frontend || echo "No logs for frontend"
 
-            echo "✅ Smoke Test success"
-            EOF
+          echo "✅ Smoke Test success"
+          EOF
 
       - name: Terminate EC2
         if: always()
