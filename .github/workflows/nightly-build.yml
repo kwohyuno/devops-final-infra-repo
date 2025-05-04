@@ -158,4 +158,4 @@ jobs:
         uses: benc-uk/workflow-dispatch@v1
         with:
           workflow: Deploy to QA
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.PAT_FOR_DISPATCH }}
