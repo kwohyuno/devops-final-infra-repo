@@ -96,6 +96,11 @@ jobs:
             docker pull 390638349876.dkr.ecr.us-east-1.amazonaws.com/devops/front:latest
             docker pull 390638349876.dkr.ecr.us-east-1.amazonaws.com/devops/post:latest
             docker pull 390638349876.dkr.ecr.us-east-1.amazonaws.com/devops/signup:latest
+          
+            echo "🧹 Cleaning up old containers..."
+            docker rm -f backend-signup || true
+            docker rm -f backend-post || true
+            docker rm -f frontend || true
 
             echo "run docker container..."
             docker run -d --name frontend -p 80:80 --network myapp-net \
