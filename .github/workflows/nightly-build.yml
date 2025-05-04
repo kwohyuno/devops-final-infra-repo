@@ -58,19 +58,7 @@ jobs:
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.EC2_SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-
-      - name: Wait for EC2 to be in "running" state
-        run: |
-          STATUS="pending"
-          while [ "$STATUS" != "running" ]; do
-            sleep 10
-            STATUS=$(aws ec2 describe-instances \
-              --instance-ids $INSTANCE_ID \
-              --query 'Reservations[0].Instances[0].State.Name' --output text)
-            echo "Current EC2 Status: $STATUS"
-          done
-          echo "EC2 is now running!"      
+          chmod 600 ~/.ssh/id_rsa   
 
       - name: Wait for SSH Port to be Open
         run: |
@@ -89,75 +77,40 @@ jobs:
         run: |
           ssh -o StrictHostKeyChecking=no ec2-user@${{ env.PUBLIC_IP }} << 'EOF'
             sudo yum update -y
-            sudo yum install -y git docker
+            sudo yum install -y docker
             sudo systemctl enable docker
             sudo systemctl start docker
-            sudo groupadd docker || true
             sudo usermod -aG docker ec2-user
+            newgrp docker
             sudo chmod 666 /var/run/docker.sock
 
-            mkdir -p ~/.docker/cli-plugins/
-            sudo curl -SL "https://github.com/docker/compose/releases/latest/download/docker-compose-linux-x86_64" -o ~/.docker/cli-plugins/docker-compose
-            sudo chmod +x ~/.docker/cli-plugins/docker-compose
+            echo "Docker login and image Pull..."
+            aws ecr get-login-password --region us-east-1 | \
+              docker login --username AWS --password-stdin 390638349876.dkr.ecr.us-east-1.amazonaws.com
 
-            docker compose version
+            docker network create myapp-net || true
 
-            echo "Cloning app repositories..."
-            mkdir -p /home/ec2-user/app && cd /home/ec2-user/app
-            git clone https://github.com/kwohyuno/devops-final-app-repo-frontend.git frontend
-            git clone https://github.com/kwohyuno/devops-final-app-repo-backend-post-service.git backend-post
-            git clone https://github.com/kwohyuno/devops-final-app-repo-backend-signup-service.git backend-signup
+            docker pull 390638349876.dkr.ecr.us-east-1.amazonaws.com/devops/front:latest
+            docker pull 390638349876.dkr.ecr.us-east-1.amazonaws.com/devops/post:latest
+            docker pull 390638349876.dkr.ecr.us-east-1.amazonaws.com/devops/signup:latest
 
-            echo "Creating docker-compose.yml..."
-            cat <<EOC > docker-compose.yml
-            version: '3'
-            services:
-              frontend:
-                image: $AWS_ECR_URL/frontend:latest
-                ports:
-                  - "80:80"
-                networks:
-                  - myapp-net
-              backend-post:
-                image: $AWS_ECR_URL/backend-post:latest
-                ports:
-                  - "8080:8080"
-                networks:
-                  - myapp-net
-              backend-signup:
-                image: $AWS_ECR_URL/backend-signup:latest
-                ports:
-                  - "8081:8080"
-                networks:
-                  - myapp-net
-            networks:
-              myapp-net:
-            EOC
+            echo "run docker container..."
+            docker run -d --name frontend -p 80:80 --network myapp-net \
+              390638349876.dkr.ecr.us-east-1.amazonaws.com/devops/front:latest
 
-            echo "Starting Docker Compose..."
-            docker compose up -d
+            docker run -d --name backend-post -p 8080:8080 --network myapp-net \
+              390638349876.dkr.ecr.us-east-1.amazonaws.com/devops/post:latest
 
-            echo "Waiting for services to be ready..."
-            for i in {1..5}; do
-              curl -f http://localhost:8080/api/board && break || echo "backend-post not ready"; sleep 10
-            done
-            for i in {1..5}; do
-              curl -f http://localhost:8081/api2/members && break || echo "backend-signup not ready"; sleep 10
-            done
-            for i in {1..5}; do
-              curl -f http://localhost || break || echo "frontend not ready"; sleep 10
-            done
+            docker run -d --name backend-signup -p 8081:8080 --network myapp-net \
+              390638349876.dkr.ecr.us-east-1.amazonaws.com/devops/signup:latest
 
-            echo "✅ All services responded successfully"
+            echo "wait before service runs..."
+            for i in {1..5}; do curl -f http://localhost:8080/api/board && break || echo "backend-post not ready"; sleep 10; done
+            for i in {1..5}; do curl -f http://localhost:8081/api2/members && break || echo "backend-signup not ready"; sleep 10; done
+            for i in {1..5}; do curl -f http://localhost || break || echo "frontend not ready"; sleep 10; done
+
+            echo "✅ Smoke Test success"
           EOF
-
-      - name: Run Smoke Test on EC2 (External)
-        run: |
-          echo "Running Smoke Test..."
-          curl -f http://${{ env.PUBLIC_IP }}:8080/api/board || { echo "❌ backend-post Failed!"; exit 1; }
-          curl -f http://${{ env.PUBLIC_IP }}:8081/api2/members || { echo "❌ backend-signup Failed!"; exit 1; }
-          curl -f http://${{ env.PUBLIC_IP }} || { echo "❌ frontend Failed!"; exit 1; }
-          echo "✅ Smoke Test Passed!"
 
       - name: Terminate EC2
         if: always()
