@@ -98,9 +98,6 @@ jobs:
             docker pull 390638349876.dkr.ecr.us-east-1.amazonaws.com/devops/signup:latest
 
             echo "run docker container..."
-          
-            echo "📦 Logs from frontend:"
-            docker logs frontend || echo "No logs for frontend"
 
             docker run -d \
               --name backend-post -p 8080:8080 \
@@ -124,13 +121,18 @@ jobs:
               -e SPRING_DATASOURCE_PASSWORD=mypassword123 \
               390638349876.dkr.ecr.us-east-1.amazonaws.com/devops/signup:latest
           
+            echo "📦 Logs from backend-signup:"
+            docker logs backend-signup || echo "No logs for backend-signup"
+          
           
             sleep 10
             docker run -d --name frontend -p 80:80 --network myapp-net \
               390638349876.dkr.ecr.us-east-1.amazonaws.com/devops/front:latest
+            sleep 10
+            echo "📦 Logs from frontend:"
+            docker logs frontend || echo "No logs for frontend"
           
-            echo "📦 Logs from backend-signup:"
-            docker logs backend-signup || echo "No logs for backend-signup"
+
 
             echo "wait before service runs..."
             for i in {1..5}; do curl -f http://${{ env.PUBLIC_IP }}:8080/api/health && break || echo "backend-post not ready"; sleep 10; done
