@@ -98,8 +98,6 @@ jobs:
             docker pull 390638349876.dkr.ecr.us-east-1.amazonaws.com/devops/signup:latest
 
             echo "run docker container..."
-            docker run -d --name frontend -p 80:80 --network myapp-net \
-              390638349876.dkr.ecr.us-east-1.amazonaws.com/devops/front:latest
           
             echo "📦 Logs from frontend:"
             docker logs frontend || echo "No logs for frontend"
@@ -124,6 +122,11 @@ jobs:
               -e SPRING_DATASOURCE_USERNAME=admin \
               -e SPRING_DATASOURCE_PASSWORD=mypassword123 \
               390638349876.dkr.ecr.us-east-1.amazonaws.com/devops/signup:latest
+          
+          
+            sleep 10
+            docker run -d --name frontend -p 80:80 --network myapp-net \
+              390638349876.dkr.ecr.us-east-1.amazonaws.com/devops/front:latest
           
             echo "📦 Logs from backend-signup:"
             docker logs backend-signup || echo "No logs for backend-signup"
