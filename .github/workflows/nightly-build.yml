@@ -118,6 +118,7 @@ jobs:
               --name backend-signup -p 8081:8081 \
               --network myapp-net \
               --network-alias backend-signup \
+              -e SERVER_PORT=8081 \
               -e SPRING_DATASOURCE_URL=jdbc:mysql://my-mysql-db.cxpgp9wsr6on.us-east-1.rds.amazonaws.com:3306/jake_dbschema \
               -e SPRING_DATASOURCE_USERNAME=admin \
               -e SPRING_DATASOURCE_PASSWORD=mypassword123 \
