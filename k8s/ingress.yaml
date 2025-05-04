@@ -23,14 +23,14 @@ spec:
               service:
                 name: backend1-service-blue
                 port:
-                  number: 4000
+                  number: 8080
           - path: /api2(/|$)(.*)
             pathType: Prefix
             backend:
               service:
                 name: backend2-service-blue
                 port:
-                  number: 4001
+                  number: 8081
 
     - host: green.uat.example.com
       http:

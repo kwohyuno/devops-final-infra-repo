@@ -21,4 +21,11 @@ spec:
         - name: backend2
           image: 390638349876.dkr.ecr.us-east-1.amazonaws.com/devops/signup:rc
           ports:
-            - containerPort: 4001
+            - containerPort: 8081
+          env:
+            - name: SPRING_DATASOURCE_URL
+              value: jdbc:mysql://my-mysql-db.cxpgp9wsr6on.us-east-1.rds.amazonaws.com:3306/jake_dbschema
+            - name: SPRING_DATASOURCE_USERNAME
+              value: admin
+            - name: SPRING_DATASOURCE_PASSWORD
+              value: mypassword123
