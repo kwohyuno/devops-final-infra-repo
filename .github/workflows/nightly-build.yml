@@ -33,6 +33,18 @@ jobs:
             --query 'Instances[0].InstanceId' \
             --output text)
           echo "INSTANCE_ID=$INSTANCE_ID" >> $GITHUB_ENV
+          
+      - name: Wait for EC2 to be in "running" state
+        run: |
+          STATUS="pending"
+          while [ "$STATUS" != "running" ]; do
+            sleep 10
+            STATUS=$(aws ec2 describe-instances \
+              --instance-ids $INSTANCE_ID \
+              --query 'Reservations[0].Instances[0].State.Name' --output text)
+            echo "Current EC2 Status: $STATUS"
+          done
+          echo "EC2 is now running!"    
 
       - name: Get EC2 Public IP
         run: |
@@ -47,7 +59,19 @@ jobs:
           mkdir -p ~/.ssh
           echo "${{ secrets.EC2_SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -H $PUBLIC_IP >> ~/.ssh/known_hosts
+
+      - name: Wait for SSH Port to be Open
+        run: |
+          echo "Waiting for SSH Port 22 to be available..."
+          until nc -zv ${{ env.PUBLIC_IP }} 22; do
+            echo "SSH is not available yet. Retrying in 5 seconds..."
+            sleep 5
+          done
+          echo "SSH is now available!"
+
+      - name: Add EC2 Host Key to Known Hosts
+        run: |
+          ssh-keyscan -H ${{ env.PUBLIC_IP }} >> ~/.ssh/known_hosts    
 
       - name: SSH into EC2 and Run Setup
         run: |
