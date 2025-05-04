@@ -1,0 +1,46 @@
+name: Deploy to UAT
+
+on:
+  workflow_dispatch:
+
+env:
+  EKS_CLUSTER_NAME: your-cluster-name
+  AWS_REGION: us-east-1
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Infra Repo
+        uses: actions/checkout@v3
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Update kubeconfig
+        run: |
+          aws eks update-kubeconfig --region $AWS_REGION --name $EKS_CLUSTER_NAME
+
+      - name: Deploy Blue versions
+        run: |
+          kubectl apply -f k8s/backend1-deployment-blue.yaml
+          kubectl apply -f k8s/backend1-service-blue.yaml
+          kubectl apply -f k8s/backend2-deployment-blue.yaml
+          kubectl apply -f k8s/backend2-service-blue.yaml
+          kubectl apply -f k8s/frontend-deployment-blue.yaml
+          kubectl apply -f k8s/frontend-service-blue.yaml
+
+      - name: Deploy Ingress (pointing to blue)
+        run: kubectl apply -f k8s/ingress.yaml
+
+      - name: Wait for Rollout (optional but useful)
+        run: |
+          kubectl rollout status deployment/backend1-deployment-blue
+          kubectl rollout status deployment/backend2-deployment-blue
+          kubectl rollout status deployment/frontend-deployment-blue
+  

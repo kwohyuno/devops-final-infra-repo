@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend2-deployment-blue
+  labels:
+    app: backend2
+    version: blue
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: backend2
+      version: blue
+  template:
+    metadata:
+      labels:
+        app: backend2
+        version: blue
+    spec:
+      containers:
+        - name: backend2
+          image: 390638349876.dkr.ecr.us-east-1.amazonaws.com/devops/signup:rc
+          ports:
+            - containerPort: 4001

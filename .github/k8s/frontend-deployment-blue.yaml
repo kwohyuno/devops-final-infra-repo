@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend-deployment-blue
+  labels:
+    app: frontend
+    version: blue
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: frontend
+      version: blue
+  template:
+    metadata:
+      labels:
+        app: frontend
+        version: blue
+    spec:
+      containers:
+        - name: frontend
+          image: 390638349876.dkr.ecr.us-east-1.amazonaws.com/devops/front:rc
+          ports:
+            - containerPort: 80

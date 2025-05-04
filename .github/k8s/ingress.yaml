@@ -1,0 +1,44 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: app-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: blue.uat.example.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: frontend-service-blue
+                port:
+                  number: 80
+          - path: /api(/|$)(.*)
+            pathType: Prefix
+            backend:
+              service:
+                name: backend1-service-blue
+                port:
+                  number: 4000
+          - path: /api2(/|$)(.*)
+            pathType: Prefix
+            backend:
+              service:
+                name: backend2-service-blue
+                port:
+                  number: 4001
+
+    - host: green.uat.example.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: frontend-service-green
+                port:
+                  number: 80
