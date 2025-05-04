@@ -105,22 +105,22 @@ jobs:
             docker logs frontend || echo "No logs for frontend"
 
             docker run -d \
-              -e RDS_ENDPOINT=my-mysql-db.cxpgp9wsr6on.us-east-1.rds.amazonaws.com \
-              -e DB_USERNAME=admin \
-              -e DB_PASSWORD=mypassword123 \
               --name backend-post -p 8080:8080 \
               --network myapp-net \
+              -e SPRING_DATASOURCE_URL=jdbc:mysql://my-mysql-db.cxpgp9wsr6on.us-east-1.rds.amazonaws.com:3306/jake_dbschema \
+              -e SPRING_DATASOURCE_USERNAME=admin \
+              -e SPRING_DATASOURCE_PASSWORD=mypassword123 \
               390638349876.dkr.ecr.us-east-1.amazonaws.com/devops/post:latest
 
             echo "📦 Logs from backend-post:"
             docker logs backend-post || echo "No logs for backend-post"
 
             docker run -d \
-              -e RDS_ENDPOINT=my-mysql-db.cxpgp9wsr6on.us-east-1.rds.amazonaws.com \
-              -e DB_USERNAME=admin \
-              -e DB_PASSWORD=mypassword123 \
               --name backend-signup -p 8081:8081 \
               --network myapp-net \
+              -e SPRING_DATASOURCE_URL=jdbc:mysql://my-mysql-db.cxpgp9wsr6on.us-east-1.rds.amazonaws.com:3306/jake_dbschema \
+              -e SPRING_DATASOURCE_USERNAME=admin \
+              -e SPRING_DATASOURCE_PASSWORD=mypassword123 \
               390638349876.dkr.ecr.us-east-1.amazonaws.com/devops/signup:latest
           
             echo "📦 Logs from backend-signup:"
