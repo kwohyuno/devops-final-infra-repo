@@ -132,8 +132,6 @@ jobs:
             echo "📦 Logs from frontend:"
             docker logs frontend || echo "No logs for frontend"
           
-
-
             echo "wait before service runs..."
             for i in {1..5}; do curl -f http://${{ env.PUBLIC_IP }}:8080/api/health && break || echo "backend-post not ready"; sleep 10; done
             echo "📦 Logs from backend-post:"
@@ -148,8 +146,7 @@ jobs:
             docker logs frontend || echo "No logs for frontend"
 
             echo "✅ Smoke Test success"
-          
-          EOF  
+            EOF
 
       - name: Terminate EC2
         if: always()
