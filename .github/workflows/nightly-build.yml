@@ -133,7 +133,7 @@ jobs:
             echo "📦 Logs from backend-post:"
             docker logs backend-post || echo "No logs for backend-post"
           
-            for i in {1..5}; do curl -f http://${{ env.PUBLIC_IP }}:8081/api2/members && break || echo "backend-signup not ready"; sleep 10; done
+            for i in {1..5}; do curl -f http://${{ env.PUBLIC_IP }}:8081/api2/health && break || echo "backend-signup not ready"; sleep 10; done
             echo "📦 Logs from backend-signup:"
             docker logs backend-signup || echo "No logs for backend-signup"
           
