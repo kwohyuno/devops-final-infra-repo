@@ -102,13 +102,23 @@ jobs:
               390638349876.dkr.ecr.us-east-1.amazonaws.com/devops/front:latest
 
             docker run -d --name backend-post -p 8080:8080 --network myapp-net \
+              -e RDS_ENDPOINT=my-mysql-db.cxpgp9wsr6on.us-east-1.rds.amazonaws.com \
+              -e DB_USERNAME=admin \
+              -e DB_PASSWORD=mypassword123 \
+              --name backend-signup -p 8081:8080 \
+              --network myapp-net \
               390638349876.dkr.ecr.us-east-1.amazonaws.com/devops/post:latest
 
-            docker run -d --name backend-signup -p 8081:8080 --network myapp-net \
+            docker run -d \
+              -e RDS_ENDPOINT=my-mysql-db.cxpgp9wsr6on.us-east-1.rds.amazonaws.com \
+              -e DB_USERNAME=admin \
+              -e DB_PASSWORD=mypassword123 \
+              --name backend-signup -p 8081:8080 \
+              --network myapp-net \
               390638349876.dkr.ecr.us-east-1.amazonaws.com/devops/signup:latest
 
             echo "wait before service runs..."
-            for i in {1..5}; do curl -f http://localhost:8080/api/board && break || echo "backend-post not ready"; sleep 10; done
+            for i in {1..5}; do curl -f http://localhost:8080/api/health && break || echo "backend-post not ready"; sleep 10; done
             for i in {1..5}; do curl -f http://localhost:8081/api2/members && break || echo "backend-signup not ready"; sleep 10; done
             for i in {1..5}; do curl -f http://localhost || break || echo "frontend not ready"; sleep 10; done
 
