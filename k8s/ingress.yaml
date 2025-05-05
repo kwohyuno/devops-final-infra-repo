@@ -21,14 +21,14 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: backend1-service-blue
+                name: backend-post
                 port:
                   number: 8080
           - path: /api2
             pathType: Prefix
             backend:
               service:
-                name: backend2-service-blue
+                name: backend-signup
                 port:
                   number: 8081
 
