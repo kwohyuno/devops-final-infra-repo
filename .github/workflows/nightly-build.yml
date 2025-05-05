@@ -93,9 +93,9 @@ jobs:
 
           docker network create myapp-net || true
 
-          docker pull 390638349876.dkr.ecr.us-east-1.amazonaws.com/devops/front:latest
-          docker pull 390638349876.dkr.ecr.us-east-1.amazonaws.com/devops/post:latest
-          docker pull 390638349876.dkr.ecr.us-east-1.amazonaws.com/devops/signup:latest
+          docker pull 423623850984.dkr.ecr.us-east-1.amazonaws.com/devops/front:latest
+          docker pull 423623850984.dkr.ecr.us-east-1.amazonaws.com/devops/post:latest
+          docker pull 423623850984.dkr.ecr.us-east-1.amazonaws.com/devops/signup:latest
 
           echo "run docker container..."
 
@@ -127,7 +127,7 @@ jobs:
           
           sleep 10
           docker run -d --name frontend -p 80:80 --network myapp-net \
-            390638349876.dkr.ecr.us-east-1.amazonaws.com/devops/front:latest
+            423623850984.dkr.ecr.us-east-1.amazonaws.com/devops/front:latest
           sleep 10
           echo "📦 Logs from frontend:"
           docker logs frontend || echo "No logs for frontend"

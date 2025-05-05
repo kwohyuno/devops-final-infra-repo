@@ -27,9 +27,9 @@ jobs:
             --image-id ami-0c2b8ca1dad447f8a \
             --count 1 \
             --instance-type t2.micro \
-            --key-name devOpsFinal \
-            --security-group-ids sg-0dec66a9ba8d66a75 \
-            --subnet-id subnet-07e2cadc5b35439a8 \
+            --key-name devops \
+            --security-group-ids sg-0540fa8736ccc05b8 \
+            --subnet-id subnet-02483d9bdedd7ca34 \
             --query 'Instances[0].InstanceId' \
             --output text)
           echo "INSTANCE_ID=$INSTANCE_ID" >> $GITHUB_ENV
@@ -89,13 +89,13 @@ jobs:
 
             echo "Docker login and image Pull..."
             aws ecr get-login-password --region us-east-1 | \
-              docker login --username AWS --password-stdin 390638349876.dkr.ecr.us-east-1.amazonaws.com
+              docker login --username AWS --password-stdin 423623850984.dkr.ecr.us-east-1.amazonaws.com
 
             docker network create myapp-net || true
 
-            docker pull 390638349876.dkr.ecr.us-east-1.amazonaws.com/devops/front:latest
-            docker pull 390638349876.dkr.ecr.us-east-1.amazonaws.com/devops/post:latest
-            docker pull 390638349876.dkr.ecr.us-east-1.amazonaws.com/devops/signup:latest
+            docker pull 423623850984.dkr.ecr.us-east-1.amazonaws.com/devops/front:latest
+            docker pull 423623850984.dkr.ecr.us-east-1.amazonaws.com/devops/post:latest
+            docker pull 423623850984.dkr.ecr.us-east-1.amazonaws.com/devops/signup:latest
 
             echo "run docker container..."
 
@@ -106,7 +106,7 @@ jobs:
               -e SPRING_DATASOURCE_URL=jdbc:mysql://database-2.cyxm60si8u5p.us-east-1.rds.amazonaws.com:3306/jake_dbschema \
               -e SPRING_DATASOURCE_USERNAME=admin \
               -e SPRING_DATASOURCE_PASSWORD=mypassword123 \
-              390638349876.dkr.ecr.us-east-1.amazonaws.com/devops/post:latest
+              423623850984.dkr.ecr.us-east-1.amazonaws.com/devops/post:latest
 
             echo "📦 Logs from backend-post:"
             docker logs backend-post || echo "No logs for backend-post"
@@ -119,7 +119,7 @@ jobs:
               -e SPRING_DATASOURCE_URL=jdbc:mysql://database-2.cyxm60si8u5p.us-east-1.rds.amazonaws.com:3306/jake_dbschema \
               -e SPRING_DATASOURCE_USERNAME=admin \
               -e SPRING_DATASOURCE_PASSWORD=mypassword123 \
-              390638349876.dkr.ecr.us-east-1.amazonaws.com/devops/signup:latest
+              423623850984.dkr.ecr.us-east-1.amazonaws.com/devops/signup:latest
           
             echo "📦 Logs from backend-signup:"
             docker logs backend-signup || echo "No logs for backend-signup"
@@ -127,7 +127,7 @@ jobs:
           
             sleep 10
             docker run -d --name frontend -p 80:80 --network myapp-net \
-              390638349876.dkr.ecr.us-east-1.amazonaws.com/devops/front:latest
+              423623850984.dkr.ecr.us-east-1.amazonaws.com/devops/front:latest
             sleep 10
             echo "📦 Logs from frontend:"
             docker logs frontend || echo "No logs for frontend"
@@ -156,24 +156,24 @@ jobs:
         run: |
           # Docker login
           aws ecr get-login-password --region us-east-1 | \
-            docker login --username AWS --password-stdin 390638349876.dkr.ecr.us-east-1.amazonaws.com
+            docker login --username AWS --password-stdin 423623850984.dkr.ecr.us-east-1.amazonaws.com
 
           # Frontend
-          docker pull 390638349876.dkr.ecr.us-east-1.amazonaws.com/devops/front:latest
-          docker tag 390638349876.dkr.ecr.us-east-1.amazonaws.com/devops/front:latest \
-                     390638349876.dkr.ecr.us-east-1.amazonaws.com/devops/front:rc
-          docker push 390638349876.dkr.ecr.us-east-1.amazonaws.com/devops/front:rc
+          docker pull 423623850984.dkr.ecr.us-east-1.amazonaws.com/devops/front:latest
+          docker tag 423623850984.dkr.ecr.us-east-1.amazonaws.com/devops/front:latest \
+                     423623850984.dkr.ecr.us-east-1.amazonaws.com/devops/front:rc
+          docker push 423623850984.dkr.ecr.us-east-1.amazonaws.com/devops/front:rc
 
           # Post Backend
-          docker pull 390638349876.dkr.ecr.us-east-1.amazonaws.com/devops/post:latest
-          docker tag 390638349876.dkr.ecr.us-east-1.amazonaws.com/devops/post:latest \
-                     390638349876.dkr.ecr.us-east-1.amazonaws.com/devops/post:rc
-          docker push 390638349876.dkr.ecr.us-east-1.amazonaws.com/devops/post:rc
+          docker pull 423623850984.dkr.ecr.us-east-1.amazonaws.com/devops/post:latest
+          docker tag 423623850984.dkr.ecr.us-east-1.amazonaws.com/devops/post:latest \
+                     423623850984.dkr.ecr.us-east-1.amazonaws.com/devops/post:rc
+          docker push 423623850984.dkr.ecr.us-east-1.amazonaws.com/devops/post:rc
 
           # Signup Backend
-          docker pull 390638349876.dkr.ecr.us-east-1.amazonaws.com/devops/signup:latest
-          docker tag 390638349876.dkr.ecr.us-east-1.amazonaws.com/devops/signup:latest \
-                     390638349876.dkr.ecr.us-east-1.amazonaws.com/devops/signup:rc
-          docker push 390638349876.dkr.ecr.us-east-1.amazonaws.com/devops/signup:rc    
+          docker pull 423623850984.dkr.ecr.us-east-1.amazonaws.com/devops/signup:latest
+          docker tag 423623850984.dkr.ecr.us-east-1.amazonaws.com/devops/signup:latest \
+                     423623850984.dkr.ecr.us-east-1.amazonaws.com/devops/signup:rc
+          docker push 423623850984.dkr.ecr.us-east-1.amazonaws.com/devops/signup:rc    
 
 
