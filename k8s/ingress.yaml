@@ -16,20 +16,6 @@ spec:
                 name: frontend
                 port:
                   number: 80
-          - path: /api
-            pathType: Prefix
-            backend:
-              service:
-                name: backend-post
-                port:
-                  number: 8080
-          - path: /api2
-            pathType: Prefix
-            backend:
-              service:
-                name: backend-signup
-                port:
-                  number: 8081
 
 #    - host: green.uat.example.com
 #      http:
