@@ -106,7 +106,7 @@ jobs:
             -e SPRING_DATASOURCE_URL=jdbc:mysql://database-2.cyxm60si8u5p.us-east-1.rds.amazonaws.com:3306/jake_dbschema \
             -e SPRING_DATASOURCE_USERNAME=admin \
             -e SPRING_DATASOURCE_PASSWORD=mypassword123 \
-            390638349876.dkr.ecr.us-east-1.amazonaws.com/devops/post:latest
+            423623850984.dkr.ecr.us-east-1.amazonaws.com/devops/post:latest
 
           echo "📦 Logs from backend-post:"
           docker logs backend-post || echo "No logs for backend-post"
@@ -119,7 +119,7 @@ jobs:
             -e SPRING_DATASOURCE_URL=jdbc:mysql://database-2.cyxm60si8u5p.us-east-1.rds.amazonaws.com:3306/jake_dbschema \
             -e SPRING_DATASOURCE_USERNAME=admin \
             -e SPRING_DATASOURCE_PASSWORD=mypassword123 \
-            390638349876.dkr.ecr.us-east-1.amazonaws.com/devops/signup:latest
+            423623850984.dkr.ecr.us-east-1.amazonaws.com/devops/signup:latest
           
           echo "📦 Logs from backend-signup:"
           docker logs backend-signup || echo "No logs for backend-signup"
