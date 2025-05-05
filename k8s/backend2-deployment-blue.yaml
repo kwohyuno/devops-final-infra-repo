@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: backend2-deployment-blue
+  name: backend-signup
   labels:
     app: backend2
     version: blue
