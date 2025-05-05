@@ -31,6 +31,7 @@ jobs:
         run: |
           kubectl delete deployment frontend || true
           kubectl apply -f k8s/frontend-deployment-green.yaml
+          kubectl apply -f k8s/frontend-service-green.yaml
 
       - name: Wait for Green Pods to be Ready
         run: |
