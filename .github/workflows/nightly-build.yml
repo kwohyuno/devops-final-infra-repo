@@ -28,8 +28,8 @@ jobs:
             --count 1 \
             --instance-type t2.micro \
             --key-name devOpsFinal \
-            --security-group-ids sg-0dec66a9ba8d66a75 \
-            --subnet-id subnet-07e2cadc5b35439a8 \
+            --security-group-ids sg-0540fa8736ccc05b8 \
+            --subnet-id subnet-02483d9bdedd7ca34 \
             --query 'Instances[0].InstanceId' \
             --output text)
           echo "INSTANCE_ID=$INSTANCE_ID" >> $GITHUB_ENV
