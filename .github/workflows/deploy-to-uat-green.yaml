@@ -35,7 +35,3 @@ jobs:
       - name: Wait for Green Pods to be Ready
         run: |
           kubectl rollout status deployment/frontend
-
-      - name: Switch Service Selector to Green
-        run: |
-          kubectl patch service frontend -n default -p '{"spec": {"selector": {"app": "frontend", "version": "green"}}}'
