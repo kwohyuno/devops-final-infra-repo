@@ -19,7 +19,7 @@ spec:
     spec:
       containers:
         - name: backend2
-          image: 390638349876.dkr.ecr.us-east-1.amazonaws.com/devops/signup:rc
+          image: 423623850984.dkr.ecr.us-east-1.amazonaws.com/devops/signup:latest
           ports:
             - containerPort: 8081
           env:

@@ -19,7 +19,7 @@ spec:
     spec:
       containers:
         - name: backend1
-          image: 390638349876.dkr.ecr.us-east-1.amazonaws.com/devops/post:latest
+          image: 423623850984.dkr.ecr.us-east-1.amazonaws.com/devops/post:latest
           ports:
             - containerPort: 8080
           env:
