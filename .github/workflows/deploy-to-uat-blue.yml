@@ -41,7 +41,7 @@ jobs:
 
       - name: Wait for Rollout (optional but useful)
         run: |
-          kubectl rollout status deployment/backend1-deployment-blue
-          kubectl rollout status deployment/backend2-deployment-blue
-          kubectl rollout status deployment/frontend-deployment-blue
+          kubectl rollout status deployment/backend-post
+          kubectl rollout status deployment/backend-signup
+          kubectl rollout status deployment/frontend
   
