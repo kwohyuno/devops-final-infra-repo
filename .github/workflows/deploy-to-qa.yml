@@ -103,7 +103,7 @@ jobs:
               --name backend-post -p 8080:8080 \
               --network myapp-net \
               --network-alias backend-post \
-              -e SPRING_DATASOURCE_URL=jdbc:mysql://my-mysql-db.cxpgp9wsr6on.us-east-1.rds.amazonaws.com:3306/jake_dbschema \
+              -e SPRING_DATASOURCE_URL=jdbc:mysql://database-2.cyxm60si8u5p.us-east-1.rds.amazonaws.com:3306/jake_dbschema \
               -e SPRING_DATASOURCE_USERNAME=admin \
               -e SPRING_DATASOURCE_PASSWORD=mypassword123 \
               390638349876.dkr.ecr.us-east-1.amazonaws.com/devops/post:latest
@@ -116,7 +116,7 @@ jobs:
               --network myapp-net \
               --network-alias backend-signup \
               -e SERVER_PORT=8081 \
-              -e SPRING_DATASOURCE_URL=jdbc:mysql://my-mysql-db.cxpgp9wsr6on.us-east-1.rds.amazonaws.com:3306/jake_dbschema \
+              -e SPRING_DATASOURCE_URL=jdbc:mysql://database-2.cyxm60si8u5p.us-east-1.rds.amazonaws.com:3306/jake_dbschema \
               -e SPRING_DATASOURCE_USERNAME=admin \
               -e SPRING_DATASOURCE_PASSWORD=mypassword123 \
               390638349876.dkr.ecr.us-east-1.amazonaws.com/devops/signup:latest
