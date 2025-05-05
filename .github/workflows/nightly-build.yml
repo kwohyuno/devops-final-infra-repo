@@ -27,7 +27,7 @@ jobs:
             --image-id ami-0c2b8ca1dad447f8a \
             --count 1 \
             --instance-type t2.micro \
-            --key-name devOpsFinal \
+            --key-name devops \
             --security-group-ids sg-0540fa8736ccc05b8 \
             --subnet-id subnet-02483d9bdedd7ca34 \
             --query 'Instances[0].InstanceId' \
