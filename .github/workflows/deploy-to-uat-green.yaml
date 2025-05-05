@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
 
 env:
-  EKS_CLUSTER_NAME: your-eks-cluster-name
+  EKS_CLUSTER_NAME: clusterwithhope
   AWS_REGION: us-east-1
 
 jobs:
@@ -29,18 +29,13 @@ jobs:
       - name: Deploy Frontend Green (Deployment + Service)
         run: |
           kubectl apply -f k8s/frontend-deployment-green.yaml
+          # frontend-service-green.yaml 은 ClusterIP 타입이어야 합니다.
           kubectl apply -f k8s/frontend-service-green.yaml
 
       - name: Wait for Green Pods to be Ready
         run: |
           kubectl rollout status deployment/frontend-deployment-green
 
-      - name: Switch Ingress to Green
+      - name: Switch Service Selector to Green
         run: |
-          kubectl patch ingress app-ingress --type='json' -p='[
-            {
-              "op": "replace",
-              "path": "/spec/rules/0/http/paths/0/backend/service/name",
-              "value": "frontend-service-green"
-            }
-          ]'
+          kubectl patch service frontend -n default -p '{"spec": {"selector": {"app": "frontend", "version": "green"}}}'
