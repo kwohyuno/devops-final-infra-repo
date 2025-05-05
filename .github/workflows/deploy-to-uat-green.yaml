@@ -34,7 +34,7 @@ jobs:
 
       - name: Wait for Green Pods to be Ready
         run: |
-          kubectl rollout status deployment/frontend-deployment-green
+          kubectl rollout status deployment/frontend
 
       - name: Switch Service Selector to Green
         run: |
