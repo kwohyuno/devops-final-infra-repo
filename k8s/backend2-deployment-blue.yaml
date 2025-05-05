@@ -29,3 +29,5 @@ spec:
               value: admin
             - name: SPRING_DATASOURCE_PASSWORD
               value: mypassword123
+            - name: SERVER_PORT
+              value: "8081"
