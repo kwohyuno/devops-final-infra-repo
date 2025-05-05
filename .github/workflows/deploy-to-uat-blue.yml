@@ -33,6 +33,7 @@ jobs:
           kubectl apply -f k8s/backend1-service-blue.yaml
           kubectl apply -f k8s/backend2-deployment-blue.yaml
           kubectl apply -f k8s/backend2-service-blue.yaml
+          kubectl delete deployment frontend || true
           kubectl apply -f k8s/frontend-deployment-blue.yaml
           kubectl apply -f k8s/frontend-service-blue.yaml
 

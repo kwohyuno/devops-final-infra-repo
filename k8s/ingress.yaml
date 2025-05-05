@@ -16,14 +16,3 @@ spec:
                 name: frontend
                 port:
                   number: 80
-
-#    - host: green.uat.example.com
-#      http:
-#        paths:
-#          - path: /
-#            pathType: Prefix
-#            backend:
-#              service:
-#                name: frontend-service-green
-#                port:
-#                  number: 80
