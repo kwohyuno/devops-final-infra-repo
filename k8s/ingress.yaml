@@ -17,14 +17,14 @@ spec:
                 name: frontend-service-blue
                 port:
                   number: 80
-          - path: /api(/|$)(.*)
+          - path: /api
             pathType: Prefix
             backend:
               service:
                 name: backend1-service-blue
                 port:
                   number: 8080
-          - path: /api2(/|$)(.*)
+          - path: /api2
             pathType: Prefix
             backend:
               service:
