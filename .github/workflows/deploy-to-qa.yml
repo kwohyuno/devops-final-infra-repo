@@ -30,7 +30,7 @@ jobs:
             --key-name devops \
             --security-group-ids sg-0540fa8736ccc05b8 \
             --subnet-id subnet-02483d9bdedd7ca34 \
-            --iam-instance-profile Name=ec2_ \
+            --iam-instance-profile Name=ec2 \
             --query 'Instances[0].InstanceId' \
             --output text)
           echo "INSTANCE_ID=$INSTANCE_ID" >> $GITHUB_ENV
