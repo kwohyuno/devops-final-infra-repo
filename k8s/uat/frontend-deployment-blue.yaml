@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: frontend
+  name: uat-frontend-blue
   labels:
     app: frontend
     version: blue

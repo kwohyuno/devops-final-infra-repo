@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: frontend
+  name: prod-frontend-blue
 spec:
   selector:
     app: prod-frontend
