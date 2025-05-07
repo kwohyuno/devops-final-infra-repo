@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: prod-backend-post
+  name: backend-post
   labels:
     app: prod-backend1
     version: prod-blue

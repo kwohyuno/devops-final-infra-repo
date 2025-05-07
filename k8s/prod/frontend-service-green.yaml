@@ -1,10 +1,10 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: prod-frontend-green
+  name: frontend-green
 spec:
   selector:
-    app: prod-frontend-green
+    app: frontend-green
     version: prod-green
   ports:
     - protocol: TCP

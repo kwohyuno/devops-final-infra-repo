@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: prod-backend-post
+  name: backend-post
 spec:
   selector:
     app: prod-backend1

@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: prod-frontend-green
+  name: frontend-green
   labels:
     app: prod-frontend-green
     version: prod-green
