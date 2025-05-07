@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: backend-signup-green
+  name: backend-signup
   labels:
     app: prod-backend2
     version: prod-green
