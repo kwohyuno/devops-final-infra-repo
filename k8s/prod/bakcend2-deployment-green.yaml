@@ -1,24 +1,24 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: backend-signup-green
+  name: uat-backend-signup-green
   labels:
-    app: backend2
+    app: uat-backend2
     version: green
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: backend2
+      app: uat-backend2
       version: green
   template:
     metadata:
       labels:
-        app: backend2
+        app: uat-backend2
         version: green
     spec:
       containers:
-        - name: backend2
+        - name: uat-backend2
           image: 423623850984.dkr.ecr.us-east-1.amazonaws.com/devops/signup:latest
           ports:
             - containerPort: 8081

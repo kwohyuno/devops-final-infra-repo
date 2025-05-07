@@ -1,10 +1,10 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: backend-signup
+  name: uat-backend-signup
 spec:
   selector:
-    app: backend2
+    app: uat-backend2
     version: blue
   ports:
     - protocol: TCP

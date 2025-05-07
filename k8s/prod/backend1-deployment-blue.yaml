@@ -1,24 +1,24 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: backend-post
+  name: uat-backend-post
   labels:
-    app: backend1
+    app: uat-backend1
     version: blue
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: backend1
+      app: uat-backend1
       version: blue
   template:
     metadata:
       labels:
-        app: backend1
+        app: uat-backend1
         version: blue
     spec:
       containers:
-        - name: backend1
+        - name: uat-backend1
           image: 423623850984.dkr.ecr.us-east-1.amazonaws.com/devops/post:latest
           ports:
             - containerPort: 8080
