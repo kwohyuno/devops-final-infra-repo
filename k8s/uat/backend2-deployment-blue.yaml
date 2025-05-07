@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend-signup
+  labels:
+    app: backend2
+    version: blue
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: backend2
+      version: blue
+  template:
+    metadata:
+      labels:
+        app: backend2
+        version: blue
+    spec:
+      containers:
+        - name: backend2
+          image: 423623850984.dkr.ecr.us-east-1.amazonaws.com/devops/signup:latest
+          ports:
+            - containerPort: 8081
+          env:
+            - name: SPRING_DATASOURCE_URL
+              value: jdbc:mysql://database-2.cyxm60si8u5p.us-east-1.rds.amazonaws.com:3306/jake_dbschema
+            - name: SPRING_DATASOURCE_USERNAME
+              value: admin
+            - name: SPRING_DATASOURCE_PASSWORD
+              value: mypassword123
+            - name: SERVER_PORT
+              value: "8081"

@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend-post-green
+  labels:
+    app: backend1
+    version: green
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: backend1
+      version: green
+  template:
+    metadata:
+      labels:
+        app: backend1
+        version: green
+    spec:
+      containers:
+        - name: backend1
+          image: 423623850984.dkr.ecr.us-east-1.amazonaws.com/devops/post:latest
+          ports:
+            - containerPort: 8080
+          env:
+            - name: SPRING_DATASOURCE_URL
+              value: jdbc:mysql://database-2.cyxm60si8u5p.us-east-1.rds.amazonaws.com/jake_dbschema
+            - name: SPRING_DATASOURCE_USERNAME
+              value: admin
+            - name: SPRING_DATASOURCE_PASSWORD
+              value: mypassword123
