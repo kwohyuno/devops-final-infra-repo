@@ -4,7 +4,7 @@ metadata:
   name: prod-frontend-green
 spec:
   selector:
-    app: prod-frontend-green
+    app: prod-frontend
     version: prod-green
   ports:
     - protocol: TCP

@@ -9,12 +9,12 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      app: uat-frontend-green
+      app: uat-frontend
       version: green
   template:
     metadata:
       labels:
-        app: uat-frontend-green
+        app: uat-frontend
         version: green
     spec:
       containers:
