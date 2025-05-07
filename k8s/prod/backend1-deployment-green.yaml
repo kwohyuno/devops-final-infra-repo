@@ -24,7 +24,7 @@ spec:
             - containerPort: 8080
           env:
             - name: SPRING_DATASOURCE_URL
-              value: jdbc:mysql://database-2.cyxm60si8u5p.us-east-1.rds.amazonaws.com/jake_dbschema
+              value: jdbc:mysql://database-1.cyxm60si8u5p.us-east-1.rds.amazonaws.com/jake_dbschema
             - name: SPRING_DATASOURCE_USERNAME
               value: admin
             - name: SPRING_DATASOURCE_PASSWORD
