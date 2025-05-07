@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: frontend-green
   labels:
-    app: frontend
+    app: frontend-green
     version: green
 spec:
   replicas: 1
