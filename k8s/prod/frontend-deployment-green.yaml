@@ -1,24 +1,24 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: uat-frontend-green
+  name: prod-frontend-green
   labels:
-    app: uat-frontend-green
-    version: green
+    app: prod-frontend-green
+    version: prod-green
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: uat-frontend-green
-      version: green
+      app: prod-frontend-green
+      version: prod-green
   template:
     metadata:
       labels:
-        app: uat-frontend-green
-        version: green
+        app: prod-frontend-green
+        version: prod-green
     spec:
       containers:
-        - name: uat-frontend-green
+        - name: prod-frontend-green
           image: 423623850984.dkr.ecr.us-east-1.amazonaws.com/devops/frontgreen:latest
           ports:
             - containerPort: 80

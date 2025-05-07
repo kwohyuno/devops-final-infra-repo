@@ -1,11 +1,11 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: uat-frontend
+  name: prod-frontend
 spec:
   selector:
-    app: uat-frontend
-    version: blue
+    app: prod-frontend
+    version: prod-blue
   ports:
     - protocol: TCP
       port: 80

@@ -1,24 +1,24 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: uat-backend-post-green
+  name: prod-backend-post-green
   labels:
-    app: uat-backend1
-    version: green
+    app: prod-backend1
+    version: prod-green
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: uat-backend1
-      version: green
+      app: prod-backend1
+      version: prod-green
   template:
     metadata:
       labels:
-        app: uat-backend1
-        version: green
+        app: prod-backend1
+        version: prod-green
     spec:
       containers:
-        - name: uat-backend1
+        - name: prod-backend1
           image: 423623850984.dkr.ecr.us-east-1.amazonaws.com/devops/post:latest
           ports:
             - containerPort: 8080

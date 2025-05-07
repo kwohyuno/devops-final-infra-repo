@@ -1,24 +1,24 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: uat-frontend
+  name: prod-frontend
   labels:
-    app: uat-frontend
-    version: blue
+    app: prod-frontend
+    version: prod-blue
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: uat-frontend
-      version: blue
+      app: prod-frontend
+      version: prod-blue
   template:
     metadata:
       labels:
-        app: uat-frontend
-        version: blue
+        app: prod-frontend
+        version: prod-blue
     spec:
       containers:
-        - name: uat-frontend
+        - name: prod-frontend
           image: 423623850984.dkr.ecr.us-east-1.amazonaws.com/devops/front:latest
           ports:
             - containerPort: 80

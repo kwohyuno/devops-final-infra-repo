@@ -1,11 +1,11 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: uat-backend-signup-green
+  name: prod-backend-signup-green
 spec:
   selector:
-    app: uat-backend2
-    version: green
+    app: prod-backend2
+    version: prod-green
   ports:
     - protocol: TCP
       port: 8081
