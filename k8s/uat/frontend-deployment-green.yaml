@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: uat-frontend-green
   labels:
-    app: uat-frontend-green
+    app: uat-frontend
     version: green
 spec:
   replicas: 1

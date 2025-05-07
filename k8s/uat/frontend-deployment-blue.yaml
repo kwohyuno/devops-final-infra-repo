@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: uat-frontend-blue
   labels:
-    app: uat-frontend-blue
+    app: uat-frontend
     version: blue
 spec:
   replicas: 1
