@@ -4,7 +4,7 @@ metadata:
   name: uat-frontend-green
 spec:
   selector:
-    app: frontend-green
+    app: uat-frontend-green
     version: green
   ports:
     - protocol: TCP

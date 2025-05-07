@@ -3,22 +3,22 @@ kind: Deployment
 metadata:
   name: uat-frontend-green
   labels:
-    app: frontend-green
+    app: uat-frontend-green
     version: green
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: frontend-green
+      app: uat-frontend-green
       version: green
   template:
     metadata:
       labels:
-        app: frontend-green
+        app: uat-frontend-green
         version: green
     spec:
       containers:
-        - name: frontend-green
+        - name: uat-frontend-green
           image: 423623850984.dkr.ecr.us-east-1.amazonaws.com/devops/frontgreen:latest
           ports:
             - containerPort: 80

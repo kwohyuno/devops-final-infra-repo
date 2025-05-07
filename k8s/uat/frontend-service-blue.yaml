@@ -4,7 +4,7 @@ metadata:
   name: uat-frontend-blue
 spec:
   selector:
-    app: frontend
+    app: uat-frontend
     version: blue
   ports:
     - protocol: TCP
